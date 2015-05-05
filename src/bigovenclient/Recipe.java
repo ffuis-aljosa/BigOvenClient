@@ -1,6 +1,7 @@
 package bigovenclient;
 
 import java.util.Date;
+import org.json.JSONObject;
 
 public class Recipe {
     private int id;
@@ -21,6 +22,40 @@ public class Recipe {
         this.imageURL = imageURL;
         this.posterName = posterName;
         this.creationDate = creationDate;
+    }
+    
+    public Recipe(JSONObject json) {
+        this.id = json.getInt("RecipeID");
+        this.title = json.getString("Title");
+        this.category = json.getString("Category");
+        this.starRating = json.getDouble("StarRating");
+        this.imageURL = json.getString("ImageURL");
+
+        this.cuisine = json.isNull("Cuisine") ? "N/A" : json.getString("Cuisine");
+
+        if (!json.isNull("Poster")) {
+            JSONObject poster = json.getJSONObject("Poster");
+
+            if (!poster.isNull("UserName"))
+                this.posterName = poster.getString("UserName");
+            else
+                this.posterName = "N/A";
+        } else {
+            this.posterName = "N/A";
+        }
+
+        String date = json.isNull("CreationDate") ? "" : json.getString("CreationDate");
+
+        if (!date.isEmpty()) {
+            int from = date.indexOf('(') + 1;
+            int to = date.indexOf(')');
+
+            String dateString = date.substring(from, to);
+
+            this.creationDate = new Date(Long.parseLong(dateString));
+        } else {
+            this.creationDate = null;
+        }
     }
 
     public int getId() {
@@ -54,4 +89,11 @@ public class Recipe {
     public Date getCreationDate() {
         return creationDate;
     }
+
+    @Override
+    public String toString() {
+        return title;
+    }
+    
+    
 }
